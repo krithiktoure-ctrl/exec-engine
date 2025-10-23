@@ -12,7 +12,7 @@ It compares two schedules—**TWAP** (even pacing) and **Almgren–Chriss** (ris
 - Generates **TWAP** and **AC** schedules for “buy Q shares over N seconds,” with a per-second **PoV limit**.  
 - Simulates execution with a lightweight impact model to get **implementation shortfall** (mean, variance) and a **certainty-equivalent** score.  
 - Runs a small, chronological **backtest** so you can compare strategies across slices of the day.  
-- Trains an **ML** notebook that trains three models on next-second direction for context.
+- Contains a **ML** notebook that trains three models on next-second direction for context.
 
 ---
 
