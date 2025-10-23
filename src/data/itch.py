@@ -21,7 +21,6 @@ def _find_lobster_files(root: Path, symbol: str):
     return ob_path, msg_path
 
 def load_lobster_top1_day(root: Path, symbol: str) -> pd.DataFrame:
-    """Load LOBSTER level-1 (top of book) as a tidy DataFrame with time, bid, ask, sizes."""
     ob_path, msg_path = _find_lobster_files(root, symbol)
 
     msg = pd.read_csv(msg_path, header=None)

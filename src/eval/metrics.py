@@ -79,9 +79,6 @@ def score_metrics(
         f"PTM@{horizon_secs}s": float(ptm),
     }
 
-import numpy as np
-import pandas as pd
-
 def realized_sigma_from_mid(mid, dt):
     mid = np.asarray(mid, dtype=float)
     if len(mid) < 2: return 0.0
