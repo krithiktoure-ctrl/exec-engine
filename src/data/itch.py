@@ -1,7 +1,9 @@
+from __future__ import annotations
 from pathlib import Path
 import pandas as pd
 import numpy as np
 import glob
+
 
 def _find_lobster_files(root: Path, symbol: str):
     root = Path(root)
@@ -64,10 +66,6 @@ def load_lobster_top1_day(root: Path, symbol: str) -> pd.DataFrame:
 
     df = df[df["spread"] >= 0].reset_index(drop=True)
     return df
-
-
-from __future__ import annotations
-from pathlib import Path
 
 def load_messages(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path, header=None,
