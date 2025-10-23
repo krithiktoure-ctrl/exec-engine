@@ -1,25 +1,30 @@
 
 # Execution Engine (NASDAQ ITCH) — Almgren–Chriss vs TWAP
 
-**What**: A minimal, fast execution engine that builds an Almgren–Chriss (AC) trading schedule on NASDAQ ITCH (LOBSTER) data, compares it to TWAP across risk aversion λ, enforces per-second PoV, and evaluates certainty-equivalent cost via simulation.
+A compact, readable project that turns NASDAQ ITCH (LOBSTER) data into a 1-second “tape”, builds **Almgren–Chriss (AC)** and **TWAP** schedules with a **per-second PoV cap**, and compares their execution costs with a simple, fast simulator. It also includes a small ML notebook (LogReg, Random Forest, XGBoost) to benchmark a next-second direction signal.
 
-**Data**:
-- *Quotes* → bucket to 1-second, take last mid per bucket.
-- *Messages* (LOBSTER `messages.csv`) → keep executions (types 4/5) and sum traded **volume** per second.
-- Join to get `df[t, time, price_mid, vol]`.
+---
 
-**Model**:
-- σ estimated from mid returns.
-- η calibrated so ~10% PoV costs about **half-spread** per bucket; γ ≈ 0.1·η (simple, interview-friendly).
-- PoV cap: per-second trade `u_t ≤ MAX_POV · vol_t`.
+## What this repo does
 
-**Evaluation**:
-- Build TWAP and AC(λ) schedules, cap with PoV, simulate with an O(n) AC path (vectorized permanent impact).
-- Report mean, variance, and **certainty-equivalent** (CE = mean + λ·var). Frontier + schedule plots.
+- **Data prep:**  
+  - Quotes → bucket to **1 second**, take the **last mid** each second.  
+  - Messages (`messages.csv`) → keep execution types **4/5**, sum **volume** per second.  
+  - Join into one frame: `df[t, time, price_mid, vol]`.
 
-**Run**:
-1. Open `notebooks/40_ac_frontier.ipynb`, set `MSG_DIR` (messages) and load quotes CSV.
-2. Run all cells → saves `data/ac_frontier_results.csv` and plots in `README_assets/`.
+- **Schedules:**  
+  - **TWAP** over the horizon.  
+  - **AC(λ)** (risk-aware shape) across a small λ grid.  
+  - **PoV cap:** enforce `u_t ≤ MAX_POV × vol_t` every second.
 
-**Backtest**:
-- A chronological 3-fold intraday backtest (`src/backtest.py`) trains σ, η, γ on the past slice and tests on the next slice.
+- **Simulation & eval:**  
+  - Vectorized **O(n)** simulator with temporary (η) and permanent (γ) impact.  
+  - Report **implementation shortfall** statistics and **certainty-equivalent** scores.  
+  - Small **rolling backtest** to compare schedules out-of-sample.
+
+- **Optional ML add-on:**  
+  - Build simple features from the 1s tape.  
+  - Train **Logistic Regression**, **Random Forest**, and **XGBoost** on next-second direction.  
+  - Compare accuracy/F1 and plot a tiny “toy PnL” for intuition.
+
+---
