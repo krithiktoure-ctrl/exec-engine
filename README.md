@@ -1,30 +1,36 @@
 
 # Execution Engine (NASDAQ ITCH) — Almgren–Chriss vs TWAP
 
-A compact, readable project that turns NASDAQ ITCH (LOBSTER) data into a 1-second “tape”, builds **Almgren–Chriss (AC)** and **TWAP** schedules with a **per-second PoV cap**, and compares their execution costs with a simple, fast simulator. It also includes a small ML notebook (LogReg, Random Forest, XGBoost) to benchmark a next-second direction signal.
+This project turns raw NASDAQ ITCH (LOBSTER) data into a simple 1-second tape and asks the question: **When should you trade faster vs spread out?**  
+It compares two schedules—**TWAP** (even pacing) and **Almgren–Chriss** (risk-aware pacing) under a per-second **participation cap (PoV)**, then uses a small simulator to estimate cost and risk. It also includes an ML notebook that benchmarks a next-second direction signal using LogReg, Random Forest, and XGBoost.
 
 ---
 
-## What this repo does
+## What does this project do?
 
-- **Data prep:**  
-  - Quotes → bucket to **1 second**, take the **last mid** each second.  
-  - Messages (`messages.csv`) → keep execution types **4/5**, sum **volume** per second.  
-  - Join into one frame: `df[t, time, price_mid, vol]`.
-
-- **Schedules:**  
-  - **TWAP** over the horizon.  
-  - **AC(λ)** (risk-aware shape) across a small λ grid.  
-  - **PoV cap:** enforce `u_t ≤ MAX_POV × vol_t` every second.
-
-- **Simulation & eval:**  
-  - Vectorized **O(n)** simulator with temporary (η) and permanent (γ) impact.  
-  - Report **implementation shortfall** statistics and **certainty-equivalent** scores.  
-  - Small **rolling backtest** to compare schedules out-of-sample.
-
-- **Optional ML add-on:**  
-  - Build simple features from the 1s tape.  
-  - Train **Logistic Regression**, **Random Forest**, and **XGBoost** on next-second direction.  
-  - Compare accuracy/F1 and plot a tiny “toy PnL” for intuition.
+- Builds a 1-second feed with **mid price** and **traded volume** from ITCH messages and quotes.  
+- Generates **TWAP** and **AC** schedules for “buy Q shares over N seconds,” with a per-second **PoV limit**.  
+- Simulates execution with a lightweight impact model to get **implementation shortfall** (mean, variance) and a **certainty-equivalent** score.  
+- Runs a small, chronological **backtest** so you can compare strategies across slices of the day.  
+- Trains an **ML** notebook that trains three models on next-second direction for context.
 
 ---
+
+## What I learned
+
+- **Trade-offs are concrete:** front-loading cuts timing risk but raises impact, but spreading out does the opposite. The AC knob (λ) makes that trade-off visible.  
+- **Participation caps bite:** a PoV limit can flatten an otherwise aggressive schedule; feasibility matters as much as the theoretical shape.  
+- **Data alignment is everything:** quotes and executions live on different clocks; getting to a clean `time, price_mid, vol` per second is half the work.  
+- **Keep calibration simple:** you don’t need a complex fit. Reasonable defaults for η/γ + a volatility estimate (σ) are enough to compare schedules.  
+- **Validate in time, not at random:** chronological splits avoid leakage and give a truer picture than random train/test.  
+- **ML is a garnish here:** at 1-second resolution, labels are noisy; a small model can help prioritize, but the core decision still comes from the execution model.  
+- **Clarity pays off:** short modules, visible sanity checks, and small tables/plots make the story easier to tell.
+
+---
+
+## Run this quickly
+
+```bash
+python -m venv .venv
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
