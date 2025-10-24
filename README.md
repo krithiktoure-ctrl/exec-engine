@@ -6,25 +6,25 @@ It compares two schedules—**TWAP** (even pacing) and **Almgren–Chriss** (ris
 
 ---
 
-## What does this project do?
+## What does it do?
 
 - Builds a 1-second feed with **mid price** and **traded volume** from ITCH messages and quotes.  
 - Generates **TWAP** and **AC** schedules for “buy Q shares over N seconds,” with a per-second **PoV limit**.  
 - Simulates execution with a lightweight impact model to get **implementation shortfall** (mean, variance) and a **certainty-equivalent** score.  
 - Runs a small, chronological **backtest** so you can compare strategies across slices of the day.  
-- Contains a **ML** notebook that trains three models on next-second direction for context.
+- Contains an **ML** notebook that trains three models on next-second direction for context.
 
 ---
 
 ## What I learned
 
-- **Trade-offs are concrete:** front-loading cuts timing risk but raises impact, but spreading out does the opposite. The AC knob (λ) makes that trade-off visible.  
-- **Participation caps bite:** a PoV limit can flatten an otherwise aggressive schedule; feasibility matters as much as the theoretical shape.  
-- **Data alignment is everything:** quotes and executions live on different clocks; getting to a clean `time, price_mid, vol` per second is half the work.  
-- **Keep calibration simple:** you don’t need a complex fit. Reasonable defaults for η/γ + a volatility estimate (σ) are enough to compare schedules.  
-- **Validate in time, not at random:** chronological splits avoid leakage and give a truer picture than random train/test.  
-- **ML is a garnish here:** at 1-second resolution, labels are noisy; a small model can help prioritize, but the core decision still comes from the execution model.  
-- **Clarity pays off:** short modules, visible sanity checks, and small tables/plots make the story easier to tell.
+- **Trade-offs are concrete:** front-loading cuts timing risk but raises impact, but spreading out does the opposite. The AC knob (λ) makes that trade-off visible.
+- **Participation limits bite:** a poV restriction may soften a strongly competitive distribution, since feasibility, as much as theoretical form, carries weight.
+- **ALIGNED DATA = EVERYTHING:** Quotes and executions are on separate clocks, but getting to a clean set of `time, price_mid, vol` per second time series is half the battle.
+- **Simple calibration:** no need for a complicated fit. Basic defaults for η/γ, along with a volatility parameter σ, will suffice for a comparison between schedules.
+- **Split in time, not at random:** Chronologically split data avoids leakage and provides a fairer view than a random split for training/testing.
+- **ML models:** labels at a 1-second level are noisy, but an ML model may aid with filtering, with a final decision provided by this execution model,
+- **Clarity pays off:** Short modules, sanity checks, and plots/graphs make the story easier to tell
 
 ---
 
@@ -32,5 +32,5 @@ It compares two schedules—**TWAP** (even pacing) and **Almgren–Chriss** (ris
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
+source .venv/bin/activate            
 pip install -r requirements.txt
